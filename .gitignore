@@ -1,0 +1,10 @@
+dist/
+output/
+.playwright-cli/
+node_modules/
+__pycache__/
+*.pyc
+*.sqlite*
+.DS_Store
+验证记录.md
+intro-zh-original.md

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>前台提醒 · Hindsight</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">
+            <span class="brand-mark" aria-hidden="true"></span>HINDSIGHT ·
+            REMINDER
+          </p>
+          <h1>前台提醒</h1>
+          <p class="intro">进入指定网站或程序时，给自己一条及时的系统通知。</p>
+        </div>
+        <label class="master-switch">
+          <span
+            ><strong>全局提醒</strong
+            ><small id="master-description">正在读取设置</small></span
+          >
+          <span class="switch"
+            ><input
+              id="master-enabled"
+              type="checkbox"
+              data-mutation
+              disabled /><span class="switch-track" aria-hidden="true"></span
+          ></span>
+        </label>
+      </header>
+
+      <div id="connection" class="notice notice--info" role="status">
+        正在连接 Hindsight，读取设置…
+      </div>
+      <div
+        id="feedback"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+
+      <div class="summary-strip">
+        <div>
+          <span id="worker-dot" class="status-dot"></span
+          ><strong id="worker-status">等待后台状态</strong
+          ><span id="worker-detail" class="muted">收到心跳后会显示在这里</span>
+        </div>
+        <span class="summary-count"
+          ><strong id="enabled-count">—</strong> 条规则已开启</span
+        >
+      </div>
+
+      <div class="workspace">
+        <div class="primary-column">
+          <section class="card rules-card" aria-labelledby="rules-heading">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">YOUR RULES</p>
+                <h2 id="rules-heading">
+                  提醒规则 <span id="rule-count" class="count">0</span>
+                </h2>
+              </div>
+              <button
+                id="add-rule"
+                class="button button--primary"
+                type="button"
+                data-mutation
+                disabled
+              >
+                <span aria-hidden="true">＋</span> 新建规则
+              </button>
+            </div>
+            <p class="section-caption">
+              每次进入匹配的网站或程序时触发；冷却时间用于防止反复切换刷屏。
+            </p>
+            <div id="rules-list" class="rules-list" aria-live="polite"></div>
+            <div id="empty-state" class="empty-state">
+              <span class="empty-glyph" aria-hidden="true">＋</span>
+              <h3>从一条自己的提醒开始</h3>
+              <p>
+                这里没有预置规则。可以新建规则，或用右侧最近检测到的值快速填写。
+              </p>
+            </div>
+          </section>
+
+          <section
+            id="editor"
+            class="card editor-card"
+            aria-labelledby="editor-heading"
+            hidden
+          >
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">RULE SETTINGS</p>
+                <h2 id="editor-heading">新建规则</h2>
+              </div>
+              <button
+                id="close-editor"
+                class="button button--quiet"
+                type="button"
+                data-mutation
+              >
+                取消
+              </button>
+            </div>
+            <form id="rule-form">
+              <div class="form-grid">
+                <label class="field"
+                  ><span>规则名称</span
+                  ><input
+                    id="rule-name"
+                    name="name"
+                    type="text"
+                    maxlength="60"
+                    placeholder="例如：专心工作"
+                    required
+                    data-mutation
+                /></label>
+                <label class="field"
+                  ><span>检测对象</span
+                  ><select id="rule-type" name="type" data-mutation>
+                    <option value="website">网站域名</option>
+                    <option value="app">程序名称</option>
+                  </select></label
+                >
+                <label class="field field--full"
+                  ><span id="target-label">目标域名</span
+                  ><input
+                    id="rule-target"
+                    name="target"
+                    type="text"
+                    placeholder="例如 example.com"
+                    autocomplete="off"
+                    required
+                    data-mutation
+                  /><small id="target-hint"
+                    >仅匹配域名，不区分网页路径。网站检测需要在 Hindsight
+                    中开启域名记录。</small
+                  ></label
+                >
+              </div>
+              <div class="target-tools">
+                <button
+                  id="fill-host"
+                  class="text-button"
+                  type="button"
+                  data-mutation
+                  disabled
+                >
+                  填入最近域名
+                </button>
+                <button
+                  id="fill-app"
+                  class="text-button"
+                  type="button"
+                  data-mutation
+                  disabled
+                >
+                  填入最近程序
+                </button>
+              </div>
+              <div id="website-options" class="option-box">
+                <label class="check-row"
+                  ><input
+                    id="include-subdomains"
+                    type="checkbox"
+                    checked
+                    data-mutation
+                  /><span
+                    ><strong>同时匹配子域名</strong
+                    ><small
+                      >例如 example.com 也匹配 live.example.com；www
+                      前缀始终与宿主一样归并。</small
+                    ></span
+                  ></label
+                >
+              </div>
+              <label id="app-options" class="field" hidden
+                ><span>程序匹配方式</span
+                ><select id="match-mode" data-mutation>
+                  <option value="contains">包含：名称中有目标文字即可</option>
+                  <option value="exact">
+                    完全相同：程序名称必须一致
+                  </option></select
+                ><small>建议用右侧最近检测到的程序名填写。</small></label
+              >
+              <label class="field message-field"
+                ><span>通知内容</span
+                ><textarea
+                  id="rule-message"
+                  name="message"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="写下希望在这个时刻看到的话…"
+                  required
+                  data-mutation
+                ></textarea>
+              </label>
+              <div class="form-grid form-grid--bottom">
+                <label class="field"
+                  ><span>冷却时间 <span class="muted">（秒）</span></span
+                  ><input
+                    id="rule-cooldown"
+                    name="cooldownSeconds"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value="60"
+                    required
+                    data-mutation
+                  /><small>同一规则在此时间内不重复通知。</small></label
+                >
+                <label class="check-row enabled-option"
+                  ><input
+                    id="rule-enabled"
+                    type="checkbox"
+                    checked
+                    data-mutation
+                  /><span
+                    ><strong>保存后启用这条规则</strong
+                    ><small>全局提醒开启时才会发送通知。</small></span
+                  ></label
+                >
+              </div>
+              <div class="form-footer">
+                <p>保存后立即生效，无需重启。</p>
+                <button
+                  id="save-rule"
+                  class="button button--primary"
+                  type="button"
+                  data-mutation
+                >
+                  保存规则
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section class="guide" aria-label="使用说明">
+            <strong>这份提醒怎样触发？</strong>
+            <p>
+              只检测当前前台窗口，约每 5
+              秒采样一次。进入匹配目标时提醒，停留在同一目标不会持续刷屏；离开后再次进入，仍会受该规则的冷却时间限制。
+            </p>
+            <p>
+              网站规则只看域名，不读取或区分页面路径。若一直没有检测到域名，请检查
+              Hindsight 的域名记录设置。
+            </p>
+          </section>
+        </div>
+
+        <aside class="secondary-column">
+          <section
+            class="card activity-card"
+            aria-labelledby="activity-heading"
+          >
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">LIVE SNAPSHOT</p>
+                <h2 id="activity-heading">最近检测</h2>
+              </div>
+              <span id="focus-time" class="tiny-tag">等待采样</span>
+            </div>
+            <p id="focus-state" class="section-caption">
+              后台收到新的前台采样后，这里会自动更新。
+            </p>
+            <div class="detected-item">
+              <div>
+                <span class="label">前台程序</span
+                ><strong id="focus-app" class="detected-value">尚无记录</strong>
+              </div>
+              <button
+                id="use-app"
+                class="button button--small"
+                type="button"
+                data-mutation
+                disabled
+              >
+                新建规则
+              </button>
+            </div>
+            <div class="detected-item">
+              <div>
+                <span class="label">网站域名</span
+                ><strong id="focus-host" class="detected-value"
+                  >尚无记录</strong
+                >
+              </div>
+              <button
+                id="use-host"
+                class="button button--small"
+                type="button"
+                data-mutation
+                disabled
+              >
+                新建规则
+              </button>
+            </div>
+            <div id="recent-hosts-section" class="recent-section" hidden>
+              <span class="label">最近域名 · 点击新建</span>
+              <div id="recent-hosts" class="chip-list"></div>
+            </div>
+            <div id="recent-apps-section" class="recent-section" hidden>
+              <span class="label">最近程序 · 点击新建</span>
+              <div id="recent-apps" class="chip-list"></div>
+            </div>
+            <p id="runtime-error" class="inline-error" role="status" hidden></p>
+          </section>
+
+          <section
+            class="card notification-card"
+            aria-labelledby="notification-heading"
+          >
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">NOTIFICATIONS</p>
+                <h2 id="notification-heading">通知与状态</h2>
+              </div>
+            </div>
+            <div class="notification-preview">
+              <span class="label">最近一次通知</span
+              ><strong id="last-notification-title">还没有通知记录</strong>
+              <p id="last-notification-body">
+                规则触发后，通知内容会显示在这里。
+              </p>
+              <small id="last-notification-time" class="muted"></small>
+            </div>
+            <div id="last-error-box" class="error-box" hidden>
+              <strong>最近错误</strong>
+              <p id="last-error"></p>
+            </div>
+            <button
+              id="test-notification"
+              class="button button--outline button--full"
+              type="button"
+              data-mutation
+              disabled
+            >
+              发送一条测试通知
+            </button>
+            <p class="footnote">
+              测试会直接向系统提交通知，不受规则开关或冷却时间影响。是否弹出取决于系统通知权限和勿扰设置。
+            </p>
+          </section>
+        </aside>
+      </div>
+      <footer class="page-footer">
+        提醒内容和规则保存在本地。只在 Hindsight 打开并且插件后台运行时检测。
+      </footer>
+    </main>
+    <script src="../_page.js"></script>
+    <script src="../core.js"></script>
+    <script src="../store.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

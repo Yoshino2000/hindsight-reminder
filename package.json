@@ -1,0 +1,19 @@
+{
+  "name": "hindsight-reminder",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Configurable foreground website and application notifications for Hindsight",
+  "scripts": {
+    "test": "node --test test/*.test.cjs",
+    "build": "py -3 -X utf8 scripts/package.py"
+  },
+  "license": "MIT",
+  "author": "Yoshino2000",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yoshino2000/hindsight-reminder.git"
+  }
+}

@@ -1,0 +1,33 @@
+async (page) => {
+  const frame = page.frameLocator("#plugin-ui");
+  await page.locator("#plugin-ui").evaluate(element => element.contentWindow.location.reload());
+  await frame.locator("#rules-list .rule").waitFor();
+  await frame.locator("#add-rule").click();
+  await frame.locator("#rule-name").fill("错误提示检查");
+  await frame.locator("#rule-target").fill("file:///not-a-website");
+  await frame.locator("#rule-message").fill("不应保存");
+  await frame.locator("#save-rule").click();
+  await frame.locator("#feedback.notice--error").waitFor();
+  await frame.locator("#close-editor").click();
+  if (!await frame.locator("#feedback").isHidden()) throw new Error("取消后未清除表单错误");
+  await frame.locator("#add-rule").click();
+  await frame.locator("#rule-name").fill("视频网站提醒");
+  await frame.locator("#rule-target").fill("bilibili.com");
+  await frame.locator("#rule-message").fill("现在是专注时间，先完成手头任务。");
+  await frame.locator("#rule-target").press("Enter");
+  await frame.locator("#editor").waitFor({ state: "hidden" });
+  if (await frame.locator("#rules-list .rule").count() !== 2) throw new Error("Enter未保存规则");
+  await page.evaluate(() => window.preview.sendFocus({ app: "chrome.exe", host: "bilibili.com" }));
+  await page.waitForTimeout(3200);
+  await frame.locator("body").evaluate(() => window.scrollTo(0, 0));
+  await page.setViewportSize({ width: 1440, height: 1180 });
+  await page.locator("#plugin-ui").evaluate(element => { element.style.height = "1100px"; });
+  await page.locator("#plugin-ui").screenshot({ path: "output/playwright/plugin-settings-desktop.png" });
+  await page.setViewportSize({ width: 480, height: 1050 });
+  await page.locator("#plugin-ui").evaluate(element => { element.style.height = "1900px"; });
+  await page.waitForTimeout(200);
+  if (!await frame.locator("body").evaluate(() => document.documentElement.scrollWidth <= innerWidth)) throw new Error("Mobile overflow");
+  await page.locator("#plugin-ui").screenshot({ path: "output/playwright/plugin-settings-mobile.png" });
+  await page.setViewportSize({ width: 1440, height: 1180 });
+  return { extraChecks: ["取消表单清除校验错误", "沙箱内输入框Enter保存规则"], screenshotsUpdated: true };
+}

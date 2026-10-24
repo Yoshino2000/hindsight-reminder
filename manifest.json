@@ -1,0 +1,18 @@
+{
+  "id": "hindsight-reminder",
+  "name": "网站与程序提醒",
+  "version": "1.0.1",
+  "permissions": [
+    "focus.changed",
+    "focus.app",
+    "focus.title",
+    "notifications"
+  ],
+  "storage_mb": 1,
+  "opens_in": "main",
+  "window": {
+    "width": 1000,
+    "height": 760
+  },
+  "runs_in_background": true
+}
